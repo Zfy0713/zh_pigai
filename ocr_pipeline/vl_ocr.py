@@ -14,7 +14,7 @@ import requests
 import pandas as pd
 from utils.ocr_topN import get_topN_result
 from utils.merge_vl_overset import merge_overset
-
+from chailu import ChailuOCR
 
 def load_csv_2_dict(csv_path):
     data = []
@@ -539,6 +539,8 @@ class Merge_VL_Chailu(VL_pigai_OCR):
         '''
         image = self.image
         for box in single_box_list:
+            if "topN" in box:
+                continue
             if not box['is_print']:
                 x = box['x']
                 y = box['y']
@@ -563,59 +565,44 @@ class Merge_VL_Chailu(VL_pigai_OCR):
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="Merge VL Chailu")
+    parser.add_argument("--image_url", type=str, required=True, help="Image url")
     parser.add_argument("--path", type=str, required=True, help="Path to the directory.")
-    parser.add_argument("--merge_overset", action='store_true')
+    # parser.add_argument("--merge_overset", action='store_true') ### 是否将拼音题单个汉字合成词语，默认True
     args = parser.parse_args()
     path = args.path
+    url = args.image_url 
+    # url = 'https://ss-prod-genie.oss-cn-beijing-internal.aliyuncs.com/correct_pipeline/processed_image/2025-09-27/85bf7b88-141d-430c-98d0-75ba641c26cd.jpg'
+    # path = '/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/ocr_pipeline/test_dir'
+    
+    ChailuInstance = ChailuOCR(img_url=url, path=path) ### 拆录
+    image_local_path = ChailuInstance.save_path ### 本地图片路径
+    image_name = ChailuInstance.img_name ### 图片名
+    ocr_res_with_topN = ChailuInstance.ocr_res_with_topN ### 原始试卷拆录结果
+    pinyin_output = ChailuInstance.process_supp_pinyin() ### 拼音题作答补充检测处理结果
+    ocr_supp = ChailuInstance.process_supp() ### 原始拆录 + 作答补充检测 合并后结果
+    # ChailuInstance.visual()
+    # chaiti_json = ChailuInstance.chaiti(ocr_res=ocr_supp) ### 拆题 (基于合并结果)
 
-    # path = '/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/jiaofu/db_data/0822-1/merge_vlocr'
-    # path = '/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/jiaofu/db_data/0822-2/merge_vlocr'
-    # ocr_dir = f'{path}/jiaozheng_ocr'
-    ocr_path = f'{path}/ocr_supp.json'
-    ocr_supp = json.load(open(ocr_path, 'r', encoding='utf-8'))
-    img_dir = f'{path}/jiaozheng'
-    temp_dir = f'{path}/temp'
-    os.makedirs(temp_dir, exist_ok=True)
 
-    visual_dir = f'{path}/visual'
+    visual_dir = f'{path}/VL_visual'
     os.makedirs(visual_dir, exist_ok=True)
 
-    outputs = []
-    current_id = 0
-    url_to_id = OrderedDict()
-    for ocr_res in tqdm(ocr_supp):
-        img_url = ocr_res['img_url']
-        img_name = os.path.split(img_url)[-1]
-        img_path = os.path.join(img_dir, img_name)
+    ### 调用vl-ocr接口，并与试卷拆录结果合并 (当前线上使用 2025.11.06)
+    Merge_VL = Merge_VL_Chailu(img_path=image_local_path, ocr_res=ocr_supp, merge_overset_flag=True)
+    merged_res, hand_text_list = Merge_VL()
 
-        if img_url and img_url not in url_to_id:
-            url_to_id[img_url] = current_id
-            current_id += 1
-        
-        temp_save_path = os.path.join(temp_dir, f'{img_name}_supp_merged.json')
-        
+    Merge_VL.visual(hand_text_list, save_path=os.path.join(visual_dir, image_name)) ## 可视化识别结果
+    print(f"Visual results saved to {os.path.join(visual_dir, image_name)}")
 
-        # input_json = os.path.join(ocr_dir, img_name)
-        # img_path = os.path.join(img_dir, img_name.replace('.json', ''))
-        # ocr_res = json.load(open(input_json, 'r', encoding='utf-8'))
+    merge_ocr_save = f"{path}/merge_vl_chaiti"
+    os.makedirs(merge_ocr_save, exist_ok=True)
 
-        Merge_VL = Merge_VL_Chailu(img_path, ocr_res, merge_overset_flag=args.merge_overset)
-        merged_res, hand_text_list = Merge_VL()
+    with open(f"{merge_ocr_save}/{image_name}.jsonl", 'w', encoding='utf-8') as f:
+        for line in merged_res:
+            f.write(json.dumps(line, ensure_ascii=False) + '\n')
 
-        Merge_VL.visual(hand_text_list, save_path=os.path.join(visual_dir, img_name))
-        print(f"Visual results saved to {os.path.join(visual_dir, img_name)}")
-
-        for item in merged_res:
-            item["num"] = current_id
-
-        with open(temp_save_path, 'w', encoding='utf-8') as f:
-            json.dump(merged_res, f, ensure_ascii=False, indent=2)
-
-        outputs += merged_res
-    df = pd.DataFrame(outputs)
-    output_csv = f'{path}/merged_ocr_supp_results.csv'
-    df.to_csv(output_csv, index=False, encoding='utf-8-sig')
-    print(f'Merged results saved to {output_csv}')
+    
+    print(f'Merged results saved to {merge_ocr_save}/{image_name}.jsonl')
 
 if __name__ == "__main__":
     main()

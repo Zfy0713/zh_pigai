@@ -10,8 +10,8 @@ from utils.frame_utils import *
 from utils.split_text import *
 from utils.ocr_topN import get_topN_result
 from utils.supp_detect import supp_detect
-from utils.merge_vl_overset import merge_overset
-from vl_ocr import VL_pigai_OCR
+# from utils.merge_vl_overset import merge_overset
+# from vl_ocr import VL_pigai_OCR
 import argparse
 
 
@@ -70,7 +70,7 @@ class ChailuOCR:
             ))
             ### 保存单张图片ocr结果
         save_json(f"{ocr_json}/{self.img_name}.json", res)
-        print(f"试卷拆录结果保存至{ocr_json}/{self.img_name}.json")
+        print(f"试卷拆录结果保存至 {ocr_json}/{self.img_name}.json")
 
         return res
 
@@ -80,7 +80,7 @@ class ChailuOCR:
         supp_json = f"{supp_dir}/{self.img_name}.json"
         supp_res = supp_detect(self.save_path)
         save_json(supp_json, supp_res)
-        print(f"作答区域补充检测结果保存至{supp_json}")
+        print(f"作答区域补充检测结果保存至 {supp_json}")
 
         return supp_res
     
@@ -89,9 +89,9 @@ class ChailuOCR:
         可视化文本框/作答补充检测框
         '''
         if not ocr_res:
-            ocr_res = self.chailu_api(self.img_url)
+            ocr_res = self.ocr_res_with_topN
         if not supp_res:
-            supp_res = self.chailu_supp_api()
+            supp_res = self.supp_res
         
         img_path = self.save_path
         image = Image.open(img_path)
@@ -176,7 +176,7 @@ class ChailuOCR:
 
             xs = [v['x'] for v in frame['frame']]
             ys = [v['y'] for v in frame['frame']]
-            text = ""
+            hand_text = text = ""
             box2 = [min(xs), min(ys), max(xs), max(ys)]
             for i, singlebox_info in enumerate(flatten_singlebox):
                 box1 = [singlebox_info['x'], singlebox_info['y'], singlebox_info['x'] + singlebox_info['width'], singlebox_info['y'] + singlebox_info['height']]
@@ -190,10 +190,10 @@ class ChailuOCR:
                         text += singlebox_info['text']
                     
             output.append({
-                "hand_text": hand_text,
+                "hand_text": hand_text if hand_text else "",
                 "text": text,
-                "hand_bbox": hand_bbox,
-                "topN": topN_res
+                "hand_bbox": hand_bbox if hand_text else [],
+                "topN": topN_res if hand_text else []
             })
 
         return output
@@ -243,9 +243,10 @@ class ChailuOCR:
 
         return ocr_res
 
-    def chaiti(self, ocr_res:dict=None, save_path=None, is_split=True, split_num=20) -> list:
+    def chaiti(self, ocr_res: dict=None, save_path=None, is_split=True, split_num=20) -> list:
         if not ocr_res:
             ocr_res = self.process_supp() ### 融合作答补充检测后的拆录结果
+            # ocr_res = self.ocr_res_with_topN
             
         if not save_path:
             save_dir = os.path.join(self.path, 'chaiti')
@@ -302,14 +303,14 @@ class ChailuOCR:
         with open(save_path, 'w', encoding='utf-8') as f:
             for out in outputs:
                 f.write(json.dumps(out, ensure_ascii=False) + '\n')
-        print(f"拆题结果保存至{save_path}")
+        print(f"拆题结果保存至 {save_path}")
 
         return outputs
 
     def add_topN(self, ocr_res: dict=None) -> dict:
         '''
         给拆录结果singlebox添加手写体topN
-        singlebox - keys: {'x','y','width','height','is_print','text'}
+        singlebox: {'x','y','width','height','is_print','text'}
         '''
         if not ocr_res:
             ocr_res = self.ocr_res
@@ -347,7 +348,7 @@ if __name__ == "__main__":
     url = 'https://ss-prod-genie.oss-cn-beijing-internal.aliyuncs.com/correct_pipeline/processed_image/2025-09-27/85bf7b88-141d-430c-98d0-75ba641c26cd.jpg'
     path = '/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/ocr_pipeline/test_dir'
     ChailuInstance = ChailuOCR(img_url=url, path=path)
-    # pinyin_output = ChailuInstance.process_supp_pinyin()
+    pinyin_output = ChailuInstance.process_supp_pinyin()
     ChailuInstance.visual()
     ChailuInstance.chaiti()
     # print(pinyin_output)
