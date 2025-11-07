@@ -4,6 +4,7 @@ import os
 import json
 import pandas as pd
 import ast
+from file_utils import load_jsonL
 
 def load_csv_2_dict(csv_path):
     # 增加字段大小限制
@@ -23,10 +24,11 @@ def load_csv_2_dict(csv_path):
 
 def main(args):
     rag_csv_path = args.rerank_path ### 搜题结果
-    chaiti_csv_path = args.ocr_chai_path ### 拆题结果
+    chaiti_path = args.ocr_chai_path ### 拆题结果
     save_path = args.save_path
 
-    data = load_csv_2_dict(chaiti_csv_path)
+    # data = load_csv_2_dict(chaiti_csv_path)
+    data = load_jsonL(chaiti_path)
     rag_data = load_csv_2_dict(rag_csv_path)
     assert len(data) == len(rag_data)
     outputs = []
@@ -60,9 +62,17 @@ def main(args):
         r.update({"combined_rag": combined_rag})
         outputs.append(r)
 
-    df = pd.DataFrame(outputs)
-    df.to_csv(save_path, index=False, encoding='utf-8-sig')
-    print(f"Saved merged results to {save_path}")
+    if save_path.endswith('.csv'):
+        df = pd.DataFrame(outputs)
+        df.to_csv(save_path, index=False, encoding='utf-8-sig')
+
+        json_path = save_path.replace('.csv', '.jsonl')
+
+        with open(json_path, 'w') as f:
+            for d in outputs:
+                f.write(json.dumps(d, ensure_ascii=False) + '\n')
+
+        print(f"Saved merged results to {save_path}")
 
 
 if __name__ == "__main__":

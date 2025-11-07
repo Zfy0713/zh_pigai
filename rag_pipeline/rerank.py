@@ -114,6 +114,8 @@ if __name__ == '__main__':
 
     for items in pbar:
         b, t = items[0], items[1]
+        print(b,t)
+        
         es = items[2] if len(items) > 2 else None
 
         query = b["input_content"].strip()
@@ -126,10 +128,11 @@ if __name__ == '__main__':
             targets.append([url_count, url, query, ocr, "[]"])
             continue
         pattern = r"##.*?##"
-        query = re.sub(pattern, "", query) ## 去除手写体，仅保留题干            
+        query = re.sub(pattern, "", query) ## 去除手写体，仅保留题干
         tusou_rag_list = t["rag"]
         bgem3_rag_list = b["rag"]["9"] # text
         bgem3_img_rag_list = b["rag"]["10"] # img
+        print(len(tusou_rag_list), len(bgem3_rag_list), len(bgem3_img_rag_list))
         if not es:
             es_rag_list = []
         else:
@@ -147,6 +150,8 @@ if __name__ == '__main__':
         ku_es_docs = [Document(item["content"], item["answer"], item["analysis"], "es", item["search_score"]) for item in es_rag_list]
         docs = ku_tusou_docs + ku_bgem3_docs + ku_bgem3_img_docs + ku_es_docs
         docs = [d for d in docs if d.answer not in ['', '答案见上', '略', '答案1123','答案1 123']]
+        print("docs:", len(docs))
+        print('*'*20)
         docs = rerank_model.rerank_docs(docs, query)
         
         rag_result = []

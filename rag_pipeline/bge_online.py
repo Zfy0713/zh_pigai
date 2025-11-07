@@ -8,6 +8,7 @@ import json
 import sys
 import os
 import re
+from file_utils import load_jsonL
 
 def load_csv_2_dict(csv_path):
     # 增加字段大小限制
@@ -55,53 +56,34 @@ def rag(query, top_k=3, is_print=True):
     return res
 
 
-if __name__ == '__main__':
-    import argparse
-    import logging
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input_path", type=str)
-    parser.add_argument("--save_path", type=str)
-    parser.add_argument("--top_k", type=int, default=3)
-    parser.add_argument("--ocr_column", type=str, default="ocr", help="ocr column name")
-    
-    args = parser.parse_args()
+def main(args):
     input_path = args.input_path
     save_path = args.save_path
 
     logger.info("input_path: %s", input_path)
     if not os.path.exists(input_path):
         raise Exception("file:{} not found".format(input_path))
-    if input_path.endswith(".csv"):
-        data = load_csv_2_dict(input_path)
-    elif input_path.endswith(".xlsx"):
-        import pandas as pd
-        df = pd.read_excel(input_path)
-        data = df.to_dict(orient='records')
+    if input_path.endswith(".jsonl"):
+        data = load_jsonL(input_path)
+
     else:
         raise Exception("file:{} not found".format(input_path))
 
     targets = []
-    logger.info("query online rag begin...")
+    logger.info("bge rag begin...")
     title_set = set()
     for idx, d in enumerate(data, start=1):
 
         logger.info(f"processing data {idx}/{len(data)}...")
+        url = d['img_url'] if 'img_url' in d else d['url']
+        title = d['title'] if 'title' in d else ''
+
         try:
             query = d[args.ocr_column]
         except Exception as e:
             logger.error(f"Error in getting ocr column: {e}")
             targets.append(json.dumps(t, ensure_ascii=False))
             continue
-
-        url = d['img_url'] if 'img_url' in d else d['url']
-        title = d['title'] if 'title' in d else ''
-        
-        t = {}
-        t["url"] = url
-        t["input_content"] = query
-        t["rag"] = []
 
         if title not in title_set:
             title_set.add(title)
@@ -119,6 +101,11 @@ if __name__ == '__main__':
             targets.append(json.dumps(t, ensure_ascii=False))
             continue
 
+        t = {}
+        t["url"] = url
+        t["input_content"] = query
+        t["rag"] = []
+
         cnts = 0
         while True:
             res = rag(query, top_k=args.top_k, is_print=False)
@@ -131,9 +118,7 @@ if __name__ == '__main__':
             else:
                 logger.error(f"{cnts}-th rag request failed, error message: {res}, sleep 1s and retry...")
                 time.sleep(1)
-        t = {}
-        t["url"] = url
-        t["input_content"] = query
+
         t["rag"] = rag_
         targets.append(json.dumps(t, ensure_ascii=False))
         time.sleep(1)
@@ -145,4 +130,20 @@ if __name__ == '__main__':
         for d in targets:
             f.write(d + '\n')
     logger.info("query online rag end...")
+
+
+if __name__ == '__main__':
+    import argparse
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input_path", type=str)
+    parser.add_argument("--save_path", type=str)
+    parser.add_argument("--top_k", type=int, default=3)
+    parser.add_argument("--ocr_column", type=str, default="ocr", help="ocr column name")  ### 搜索query字段名，当前为"text_vl"
+    
+    args = parser.parse_args()
+    main(args)
+    
 

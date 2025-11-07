@@ -16,7 +16,7 @@ import sys
 import cv2
 import numpy as np
 import ast
-
+from file_utils import load_jsonL
 
 app_key = "zixueyunpa8bdbe6" #"47ea14770d"
 app_secret = "794857dd85e30821afb5c7e96fb5884d"#"850ef85574a93f9d57cbefd7ea700147"
@@ -172,27 +172,14 @@ def xiaohou_http_send(req_id, image, words, image_url):
     except Exception as e:
         return {'error_code': -1, 'trace_id': str(uuid.uuid1()), 'msg': 'http send except msg:{}'.format(e)}
 
-if __name__ == '__main__':
-
-    import argparse
-    import logging
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input_path", type=str)
-    parser.add_argument("--save_path", type=str)
-    parser.add_argument("--jiaozheng_dir", type=str)
-    parser.add_argument("--top_k", type=int, default=3)
-    parser.add_argument("--ocr_column", type=str, default="ocr", help="ocr column name")
-
-    args = parser.parse_args()
+def main(args):
     input_path = args.input_path
     save_path = args.save_path
     jiaozheng_dir = args.jiaozheng_dir
     top_k = args.top_k
     ocr_column = args.ocr_column
 
-    data = load_csv_2_dict(input_path)
+    data = load_jsonL(input_path)
 
     targets = []
     title_set = set()
@@ -226,7 +213,7 @@ if __name__ == '__main__':
 
         image_name = os.path.split(url)[-1]
         image_path = os.path.join(jiaozheng_dir, image_name)
-        vertices = ast.literal_eval(d["vertices"])
+        vertices = ast.literal_eval(d["vertices"]) if isinstance(d["vertices"], str) else d["vertices"]
         image = Image.open(image_path)
         min_x = min(v['x'] for v in vertices)
         min_y = min(v['y'] for v in vertices)
@@ -406,3 +393,19 @@ if __name__ == '__main__':
     with open(save_path, "w", encoding="utf-8") as f:
         for d in targets:
             f.write(d + '\n')
+
+if __name__ == '__main__':
+
+    import argparse
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input_path", type=str)
+    parser.add_argument("--save_path", type=str)
+    parser.add_argument("--jiaozheng_dir", type=str)
+    parser.add_argument("--top_k", type=int, default=3)
+    parser.add_argument("--ocr_column", type=str, default="ocr", help="ocr column name")
+
+    args = parser.parse_args()
+    main(args)
