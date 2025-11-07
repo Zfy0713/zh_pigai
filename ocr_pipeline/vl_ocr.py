@@ -3,6 +3,7 @@ import json, csv
 import re
 import os
 import uuid
+import json
 from tqdm import tqdm
 import io
 from PIL import Image, ImageDraw, ImageFont
@@ -570,6 +571,7 @@ def main():
     # parser.add_argument("--merge_overset", action='store_true') ### 是否将拼音题单个汉字合成词语，默认True
     args = parser.parse_args()
     path = args.path
+    os.makedirs(path, exist_ok=True)
     url = args.image_url 
     # url = 'https://ss-prod-genie.oss-cn-beijing-internal.aliyuncs.com/correct_pipeline/processed_image/2025-09-27/85bf7b88-141d-430c-98d0-75ba641c26cd.jpg'
     # path = '/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/ocr_pipeline/test_dir'
@@ -579,6 +581,15 @@ def main():
     image_name = ChailuInstance.img_name ### 图片名
     ocr_res_with_topN = ChailuInstance.ocr_res_with_topN ### 原始试卷拆录结果
     pinyin_output = ChailuInstance.process_supp_pinyin() ### 拼音题作答补充检测处理结果
+
+    pinyin_save_path = os.path.join(path, "pinyin_ciku")
+    os.makedirs(pinyin_save_path, exist_ok=True)
+    with open(f"{pinyin_save_path}/pinyin_output.jsonl", 'w') as f:
+        for line in pinyin_output:
+            f.write(json.dumps(line, ensure_ascii=False) + '\n')
+    print(f"Pinyin output saved to {pinyin_save_path}/pinyin_output.jsonl")
+
+
     ocr_supp = ChailuInstance.process_supp() ### 原始拆录 + 作答补充检测 合并后结果
     # ChailuInstance.visual()
     # chaiti_json = ChailuInstance.chaiti(ocr_res=ocr_supp) ### 拆题 (基于合并结果)

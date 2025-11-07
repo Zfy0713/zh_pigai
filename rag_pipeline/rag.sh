@@ -6,42 +6,50 @@ conda activate vllm065
 
 cd /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/rag_pipeline
 
-path=/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/ocr_pipeline/test_dir/rag
+path=/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/test_dir/fa9c5ca7-573e-4946-993d-7b3cf94f1e28.jpg
+
+rag_dir=$path"/rag"
+if [ -d "$rag_dir" ]; then
+    echo $rag_dir
+else
+    mkdir -p $rag_dir
+    echo "The directory '$rag_dir' has been created."
+fi
 
 ### 9,10库
-INPUT_PATH=/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/ocr_pipeline/test_dir/merge_vl_chaiti/85bf7b88-141d-430c-98d0-75ba641c26cd.jpg.jsonl
-BGE_OUTPUT_PATH=$path"/bge.jsonl"
+INPUT_PATH=$path"/merge_vl_chaiti/fa9c5ca7-573e-4946-993d-7b3cf94f1e28.jpg.jsonl"
+BGE_OUTPUT_PATH=$rag_dir"/bge.jsonl"
 SEARCH_NAME="text_vl"
-# python bge_online.py \
-#     --input_path ${INPUT_PATH} \
-#     --save_path ${BGE_OUTPUT_PATH} \
-#     --top_k 3 --ocr_column $SEARCH_NAME  > $path"/bge.log" 2>&1 &
+python bge_online.py \
+    --input_path ${INPUT_PATH} \
+    --save_path ${BGE_OUTPUT_PATH} \
+    --top_k 3 --ocr_column $SEARCH_NAME  > $rag_dir"/bge.log" 2>&1 &
 
 ### 图库
-TUSOU_OUTPUT_PATH=$path"/tusou.jsonl"
-JIAOZHENG_DIR=/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/ocr_pipeline/test_dir/jiaozheng ### 图片路径
+TUSOU_OUTPUT_PATH=$rag_dir"/tusou.jsonl"
+JIAOZHENG_DIR=$path"/jiaozheng" ### 图片路径
 SEARCH_NAME="text_vl"
 
-# python tusou_online.py \
-#     --input_path ${INPUT_PATH} \
-#     --save_path ${TUSOU_OUTPUT_PATH} \
-#     --ocr_column $SEARCH_NAME \
-#     --jiaozheng_dir ${JIAOZHENG_DIR} > $path"/tusou.log" 2>&1 &
+python tusou_online.py \
+    --input_path ${INPUT_PATH} \
+    --save_path ${TUSOU_OUTPUT_PATH} \
+    --ocr_column $SEARCH_NAME \
+    --jiaozheng_dir ${JIAOZHENG_DIR} > $rag_dir"/tusou.log" 2>&1 &
 
-# wait
+wait
 
 ### rerank
 RERANK_MODEL=/mnt/pfs_l2/jieti_team/APP/hegang/models/hegang/models/official/BAAI/bge-reranker-large
 # ES_RESULT=$path"/es_search.jsonl"
 
-RERANK_SAVE_PATH=$path"/rerank_9_10_tusou_indent4.csv"
+RERANK_SAVE_PATH=$rag_dir"/rerank_9_10_tusou_indent4.csv"
 
-# python rerank.py \
-#     --rerank_model_path $RERANK_MODEL \
-#     --bge_path $BGE_OUTPUT_PATH \
-#     --tusou_path $TUSOU_OUTPUT_PATH \
-#     --top_k 3 \
-#     --save_path $RERANK_SAVE_PATH > $path"/rerank_9_10_tusou.log" 2>&1 &
+python rerank.py \
+    --rerank_model_path $RERANK_MODEL \
+    --bge_path $BGE_OUTPUT_PATH \
+    --tusou_path $TUSOU_OUTPUT_PATH \
+    --top_k 3 \
+    --save_path $RERANK_SAVE_PATH > $rag_dir"/rerank_9_10_tusou.log" 2>&1 &
     # --es_path $ES_RESULT > 
 
 wait
@@ -50,7 +58,7 @@ wait
 python merge.py \
     --rerank_path $RERANK_SAVE_PATH \
     --ocr_chai_path $INPUT_PATH \
-    --save_path $path"/rag_output.csv"
+    --save_path $rag_dir"/rag_output.csv"
 
 
 # nohup bash /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/search_online/rag.sh > /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_v1/data2025/0903bei/rag-bge/rerank_9_10_tusou_es.log 2>&1 &

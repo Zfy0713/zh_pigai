@@ -5,7 +5,9 @@ import re
 import requests
 import time
 from pathlib import Path
-from utils.utils import load_csv_2_dict, load_jsonL, save_jsonL, load_json, save_json
+# from utils.utils import load_csv_2_dict, load_jsonL, save_jsonL, load_json, save_json
+from ..utils.utils import load_json, load_jsonL, save_json, save_jsonL, load_csv_2_dict
+
 
 import os
 # from transformers import Qwen2VLForConditionalGeneration, AutoTokenizer, AutoProcessor

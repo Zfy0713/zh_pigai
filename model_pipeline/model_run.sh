@@ -6,6 +6,8 @@ conda activate vllm065
 # conda activate qwen3
 # conda activate qwen3_chat
 
+cd /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline
+
 JIUZHANG_CHECKPOINT=/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/models/officials/Qwen2/Qwen2.5-72B-Instruct
 # JIUZHANG_CHECKPOINT=/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/models/officials/ByteDance-Seed/Seed-OSS-36B-Instruct
 # JIUZHANG_CHECKPOINT=/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/models/officials/Qwen3/Qwen3-32B
@@ -19,24 +21,24 @@ TASK_TYPE=pigai_yuwen
 # 支持qwen
 MODEL_TYPE=qwen
 
-dir=/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/test_dir/merge_vl_chaiti
-if [ -d "$dir" ]; then
-    echo $dir
+dir=/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/test_dir/fa9c5ca7-573e-4946-993d-7b3cf94f1e28.jpg
+LLM_output=$dir"/model_output"
+if [ -d "$LLM_output" ]; then
+    echo $LLM_output
 else
-    mkdir -p $dir
-    echo "The directory '$dir' has been created."
+    mkdir -p $LLM_output
+    echo "The directory '$LLM_output' has been created."
 fi
 
 # INPUT=$dir"/ocr_supp_chaiti_rag.csv"
-INPUT=$dir"/85bf7b88-141d-430c-98d0-75ba641c26cd.jpg.jsonl"
-SAVE_PATH=$dir"/model_output.csv"
+INPUT=$dir"/merge_vl_chaiti/fa9c5ca7-573e-4946-993d-7b3cf94f1e28.jpg.jsonl"
+SAVE_PATH=$LLM_output"/model_output.csv"
 
 echo "============="
 echo $JIUZHANG_CHECKPOINT
 echo $INPUT
 echo "============="
-CUDA_VISIBLE_DEVICES=1,2,3,4 python \
-    /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/model_pipeline/model_run.py \
+CUDA_VISIBLE_DEVICES=1,2,3,4 python -m pigai_pipeline.model_pipeline.model_run \
     --task_type $TASK_TYPE \
     --sft_model_path $JIUZHANG_CHECKPOINT \
     --model_type $MODEL_TYPE \
