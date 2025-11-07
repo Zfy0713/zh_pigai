@@ -55,3 +55,9 @@ CUDA_VISIBLE_DEVICES=1,2,3,4 python -m pigai_pipeline.model_pipeline.model_run \
     --gpu_memory_utilization 0.9 \
     --num_gpus 4
 
+wait
+
+### 模型后处理
+MODEL_PATH=$SAVE_PATH ### 模型输出csv文件
+OCR_PATH=$path"ocr_supp.json" ### ocr拆录结果
+python image_draw_topN_2.py $MODEL_PATH $OCR_PATH $path

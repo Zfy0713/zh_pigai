@@ -1,5 +1,7 @@
 import json
-
+import csv
+import difflib
+import re
 
 def save_jsonL(save_path, data):
     """保存为jsonl"""
@@ -36,3 +38,15 @@ def load_csv_2_dict(csv_path):
                 d[k]=v
             data.append(d)
     return data
+
+def load_csv(path):
+    csv.field_size_limit(100000000)
+    with open(path, 'r', encoding='utf-8-sig') as f:
+        data=list(csv.reader(f))
+    return data
+
+def text_similarity_ratio(s1,s2):
+    return difflib.SequenceMatcher(s1,s2).quick_ratio()
+
+def clean_punctuation(s):
+    return re.sub(r'[^\w\s\u4e00-\u9fff]', '', s)
