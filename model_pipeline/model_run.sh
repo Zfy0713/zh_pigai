@@ -19,7 +19,7 @@ TASK_TYPE=pigai_yuwen
 # 支持qwen
 MODEL_TYPE=qwen
 
-dir=/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_v1/data2025/1006data/vl-merge
+dir=/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/test_dir/merge_vl_chaiti
 if [ -d "$dir" ]; then
     echo $dir
 else
@@ -28,7 +28,7 @@ else
 fi
 
 # INPUT=$dir"/ocr_supp_chaiti_rag.csv"
-INPUT=$dir"/merged_ocr_supp_results.csv"
+INPUT=$dir"/85bf7b88-141d-430c-98d0-75ba641c26cd.jpg.jsonl"
 SAVE_PATH=$dir"/model_output.csv"
 
 echo "============="
