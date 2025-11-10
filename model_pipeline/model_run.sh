@@ -59,12 +59,12 @@ CUDA_VISIBLE_DEVICES=1,2,3,4 python -m pigai_pipeline.model_pipeline.model_run \
 wait
 
 ### 模型后处理 --> pigai图 + draw.csv
-path=/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/test_dir/fa9c5ca7-573e-4946-993d-7b3cf94f1e28.jpg
-Image_name="${path##*/}"
-MODEL_PATH=$path"/model_output/model_output.csv"
-JIAOZHENG_PATH=$path"/jiaozheng/"${Image_name}
-PIGAI_PATH=$path"/model_output"
-draw_path=$path"/model_output/draw.csv"
+
+Image_name="${dir##*/}"
+MODEL_PATH=$dir"/model_output/model_output.csv"
+JIAOZHENG_PATH=$dir"/jiaozheng/"${Image_name}
+PIGAI_PATH=$dir"/model_output"
+draw_path=$dir"/model_output/draw.csv"
 
 python -m pigai_pipeline.model_pipeline.image_draw_topN_2 \
     --model_output $MODEL_PATH \
