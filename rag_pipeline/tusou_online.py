@@ -175,7 +175,7 @@ def xiaohou_http_send(req_id, image, words, image_url):
 def main(args):
     input_path = args.input_path
     save_path = args.save_path
-    jiaozheng_dir = args.jiaozheng_dir
+    image_path = args.image_path
     top_k = args.top_k
     ocr_column = args.ocr_column
 
@@ -212,7 +212,7 @@ def main(args):
         t["source"] = "tusou"
 
         image_name = os.path.split(url)[-1]
-        image_path = os.path.join(jiaozheng_dir, image_name)
+        # image_path = os.path.join(jiaozheng_dir, image_name)
         vertices = ast.literal_eval(d["vertices"]) if isinstance(d["vertices"], str) else d["vertices"]
         image = Image.open(image_path)
         min_x = min(v['x'] for v in vertices)
@@ -403,7 +403,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_path", type=str)
     parser.add_argument("--save_path", type=str)
-    parser.add_argument("--jiaozheng_dir", type=str)
+    parser.add_argument("--image_path", type=str)
     parser.add_argument("--top_k", type=int, default=3)
     parser.add_argument("--ocr_column", type=str, default="ocr", help="ocr column name")
 

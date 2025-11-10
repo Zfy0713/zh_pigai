@@ -71,14 +71,11 @@ class VL_pigai_OCR:
 
     def vl_1b(self, img_b64, env='test'):
         if env == 'test':
-
             api_url = "https://mlops-infer.tal.com/appset/slave-xxj-paizhao-1b-wangm/v1/tal/completions" ## test env
             headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer a586835303105:zxcdb7b94c3b'} ### test env
         elif env == 'online':
             api_url = "https://mlops-infer.tal.com/appset/orc-xxj-paizhao-1b-wangm/v1/tal/completions" ## online env
             headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer a253788754481:pm2k2AHCld32'} ### online env
-
-
 
         request_id = uuid.uuid4().hex
         stream = False
@@ -580,7 +577,7 @@ def main():
     image_local_path = ChailuInstance.save_path ### 本地图片路径
     image_name = ChailuInstance.img_name ### 图片名
     ocr_res_with_topN = ChailuInstance.ocr_res_with_topN ### 原始试卷拆录结果
-    pinyin_output = ChailuInstance.process_supp_pinyin() ### 拼音题作答补充检测处理结果
+    pinyin_output = ChailuInstance.process_supp_pinyin(ocr_res=ocr_res_with_topN) ### 拼音题作答补充检测处理结果
 
     pinyin_save_path = os.path.join(path, "pinyin_ciku")
     os.makedirs(pinyin_save_path, exist_ok=True)
@@ -590,7 +587,7 @@ def main():
     print(f"Pinyin output saved to {pinyin_save_path}/pinyin_output.jsonl")
 
 
-    ocr_supp = ChailuInstance.process_supp() ### 原始拆录 + 作答补充检测 合并后结果
+    ocr_supp = ChailuInstance.process_supp(ocr_res=ocr_res_with_topN) ### 原始拆录 + 作答补充检测 合并后结果
     # ChailuInstance.visual()
     # chaiti_json = ChailuInstance.chaiti(ocr_res=ocr_supp) ### 拆题 (基于合并结果)
 
