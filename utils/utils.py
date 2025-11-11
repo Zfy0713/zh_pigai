@@ -50,3 +50,40 @@ def text_similarity_ratio(s1,s2):
 
 def clean_punctuation(s):
     return re.sub(r'[^\w\s\u4e00-\u9fff]', '', s)
+
+def save_json_2_csv(input_json, output_csv):
+    if isinstance(input_json, str) and os.path.exists(input_json):
+        data = load_json(input_json)
+    else:
+        data = input_json
+    # 获取字典中的所有键作为列名
+    fieldnames = data[0].keys() if isinstance(data, list) else data.keys()
+    # 写入 CSV 文件
+    with open(output_csv, 'w', newline='', encoding='utf-8') as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        writer.writeheader()
+        if isinstance(data, list):
+            for row in data:
+                writer.writerow(row)
+        else:
+            writer.writerow(data)
+
+def flatten_nested_list(nested_list):
+    """
+    将任意深度的嵌套列表转换为一维列表
+    
+    参数:
+    nested_list: 可能包含多层嵌套的列表
+    
+    返回:
+    完全展平的一维列表
+    """
+    flattened = []
+    for item in nested_list:
+        if isinstance(item, list):
+            # 递归处理嵌套列表
+            flattened.extend(flatten_nested_list(item))
+        else:
+            # 非列表元素直接添加
+            flattened.append(item)
+    return flattened

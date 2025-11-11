@@ -2,9 +2,7 @@
 
 source /mnt/pfs_l2/jieti_team/APP/zhangfengyu/miniconda/bin/activate
 conda activate vllm065
-# conda activate vllm010
-# conda activate qwen3
-# conda activate qwen3_chat
+
 
 cd /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline
 
@@ -22,8 +20,12 @@ TASK_TYPE=pigai_yuwen
 # 支持qwen
 MODEL_TYPE=qwen
 
-dir=/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/test_dir/fa9c5ca7-573e-4946-993d-7b3cf94f1e28.jpg
-LLM_output=$dir"/model_output"
+ImageURL="$1"
+Image_name="${ImageURL##*/}"
+path="/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/data/yewu0904/pigai/${Image_name}"
+
+
+LLM_output=$path"/model_output"
 if [ -d "$LLM_output" ]; then
     echo $LLM_output
 else
@@ -32,39 +34,45 @@ else
 fi
 
 # INPUT=$dir"/ocr_supp_chaiti_rag.csv"
-INPUT=$dir"/merge_vl_chaiti/fa9c5ca7-573e-4946-993d-7b3cf94f1e28.jpg.jsonl"
+INPUT_PATH="${path}/merge_vl_chaiti/${Image_name}.jsonl"
 SAVE_PATH=$LLM_output"/model_output.csv"
 
-echo "============="
-echo $JIUZHANG_CHECKPOINT
-echo $INPUT
-echo "============="
-CUDA_VISIBLE_DEVICES=1,2,3,4 python -m pigai_pipeline.model_pipeline.model_run \
-    --task_type $TASK_TYPE \
-    --sft_model_path $JIUZHANG_CHECKPOINT \
-    --model_type $MODEL_TYPE \
-    --tokenizer_path $JIUZHANG_CHECKPOINT \
-    --data_path $INPUT \
-    --save_path $SAVE_PATH \
-    --max_gen_length 32768 \
-    --num_return_sequences 1 \
-    --seed 42 \
-    --top_p 0.7 \
-    --top_k 40 \
-    --temperature 0.1 \
-    --repetition_penalty 1.1 \
-    --gpu_memory_utilization 0.7 \
-    --num_gpus 4
+# echo "============="
+# echo $JIUZHANG_CHECKPOINT
+# echo $INPUT
+# echo "============="
+# CUDA_VISIBLE_DEVICES=1,2,3,4 python -m pigai_pipeline.model_pipeline.model_run \
+#     --task_type $TASK_TYPE \
+#     --sft_model_path $JIUZHANG_CHECKPOINT \
+#     --model_type $MODEL_TYPE \
+#     --tokenizer_path $JIUZHANG_CHECKPOINT \
+#     --data_path $INPUT \
+#     --save_path $SAVE_PATH \
+#     --max_gen_length 32768 \
+#     --num_return_sequences 1 \
+#     --seed 42 \
+#     --top_p 0.7 \
+#     --top_k 40 \
+#     --temperature 0.1 \
+#     --repetition_penalty 1.1 \
+#     --gpu_memory_utilization 0.7 \
+#     --num_gpus 4
 
-wait
+# wait
+
+
+### 线上接口
+python -m pigai_pipeline.model_pipeline.qwen-api-2 \
+    --input_path $INPUT_PATH \
+    --output_path $SAVE_PATH
+
 
 ### 模型后处理 --> pigai图 + draw.csv
 
-Image_name="${dir##*/}"
-MODEL_PATH=$dir"/model_output/model_output.csv"
-JIAOZHENG_PATH=$dir"/jiaozheng/"${Image_name}
-PIGAI_PATH=$dir"/model_output"
-draw_path=$dir"/model_output/draw.csv"
+MODEL_PATH=$SAVE_PATH
+JIAOZHENG_PATH=$path"/jiaozheng/"${Image_name}
+PIGAI_PATH=$LLM_output
+draw_path=$LLM_output"/draw.csv"
 
 python -m pigai_pipeline.model_pipeline.image_draw_topN_2 \
     --model_output $MODEL_PATH \

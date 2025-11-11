@@ -96,7 +96,7 @@ def pigai_ciku(ciku_path, data, remove_tones=True):
         })
 
     draw_output = {
-        "img_url": img_url,
+        "img_url": data[0]['img_url'],
         "matched_boxes": matched_boxes
     }
     return draw_output

@@ -190,6 +190,7 @@ class ChailuOCR:
                         text += singlebox_info['text']
                     
             output.append({
+                "img_url": ocr_res["img_url"],
                 "hand_text": hand_text if hand_text else "",
                 "text": text,
                 "hand_bbox": hand_bbox if hand_text else [],
