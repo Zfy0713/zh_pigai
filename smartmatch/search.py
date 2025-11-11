@@ -20,7 +20,6 @@ def numpy_to_base64(image_np):
 def search(img_b64):
     # trace_id = "04b1_35e5f6b1-1095-4b63-a22d-5cb167aa5d32"
     trace_id = uuid.uuid4().hex
-    # img_url = "https://vegas-online-4-1304808899.cos.ap-beijing.myqcloud.com/0625-%E4%B8%81%E7%81%BF/0615%E6%95%B0%E5%AD%A6%E5%AD%A6%E4%B9%A0%E6%9C%BA%E7%AB%9E%E5%93%81%E6%A8%AA%E8%AF%84/04b1_35e5f6b1-1095-4b63-a22d-5cb167aa5d32.jpg?q-sign-algorithm=sha1&q-ak=AKIDzwkXJB3rZBh8VtO3wqlpzGkK4tmeWdk6&q-sign-time=1752113941%3B2067474001&q-key-time=1752113941%3B2067474001&q-header-list=host&q-url-param-list=&q-signature=b74bd1e54ff51c71a741c33538617bcb453ca69b"
 
     data = {}
     # img = cv2.imdecode(np.frombuffer(requests.get(img_url).content, np.uint8), cv2.IMREAD_COLOR)
