@@ -4,9 +4,14 @@ cd /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeli
 
 
 # ImageURL="$1"
-ImageURL="https://prod-genie.edstars.com.cn/correct_pipline/processed_image/2025-06-04/cf39_c9d9bad2-62fc-4a86-9200-2b2aff7cb1dd.jpg"
+# ImageURL="https://prod-genie.edstars.com.cn/correct_pipline/processed_image/2025-06-04/cf39_c9d9bad2-62fc-4a86-9200-2b2aff7cb1dd.jpg"
+# Image_name="${ImageURL##*/}"
+# path="/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/test_dir/${Image_name}"
+
+ImageURL="$1"
+PIGAI_DIR="$2"
 Image_name="${ImageURL##*/}"
-path="/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/test_dir/${Image_name}"
+path="${PIGAI_DIR}/${Image_name}"
 
 ### 整页搜索
 IMAGE_PATH="${path}/jiaozheng/${Image_name}"
