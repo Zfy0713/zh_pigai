@@ -7,9 +7,14 @@ conda activate vllm065
 cd /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline
 
 # ImageURL="$1"
-ImageURL="https://prod-genie.edstars.com.cn/correct_pipline/processed_image/2025-06-04/0050_18e6e21e-33d2-4927-98bf-eed4548f3393.jpg"
+# ImageURL="https://prod-genie.edstars.com.cn/correct_pipline/processed_image/2025-06-04/0050_18e6e21e-33d2-4927-98bf-eed4548f3393.jpg"
+# Image_name="${ImageURL##*/}"
+# path="/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/test_dir/${Image_name}"
+
+ImageURL="$1"
+PIGAI_DIR="$2"
 Image_name="${ImageURL##*/}"
-path="/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/test_dir/${Image_name}"
+path="${PIGAI_DIR}/${Image_name}"
 
 rag_dir=$path"/rag"
 if [ -d "$rag_dir" ]; then

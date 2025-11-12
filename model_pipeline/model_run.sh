@@ -21,10 +21,14 @@ TASK_TYPE=pigai_yuwen
 MODEL_TYPE=qwen
 
 # ImageURL="$1"
-ImageURL="https://prod-genie.edstars.com.cn/correct_pipline/processed_image/2025-06-04/0050_18e6e21e-33d2-4927-98bf-eed4548f3393.jpg"
-Image_name="${ImageURL##*/}"
-path="/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/test_dir/${Image_name}"
+# ImageURL="https://prod-genie.edstars.com.cn/correct_pipline/processed_image/2025-06-04/0050_18e6e21e-33d2-4927-98bf-eed4548f3393.jpg"
+# Image_name="${ImageURL##*/}"
+# path="/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/test_dir/${Image_name}"
 
+ImageURL="$1"
+PIGAI_DIR="$2"
+Image_name="${ImageURL##*/}"
+path="${PIGAI_DIR}/${Image_name}"
 
 LLM_output=$path"/model_output"
 if [ -d "$LLM_output" ]; then
