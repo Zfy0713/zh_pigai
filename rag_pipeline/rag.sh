@@ -4,12 +4,12 @@ unset https_proxy
 source /mnt/pfs_l2/jieti_team/APP/zhangfengyu/miniconda/bin/activate
 conda activate vllm065
 
-cd /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/rag_pipeline
+cd /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline
 
-# path=/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/test_dir/fa9c5ca7-573e-4946-993d-7b3cf94f1e28.jpg
-ImageURL="$1"
+# ImageURL="$1"
+ImageURL="https://prod-genie.edstars.com.cn/correct_pipline/processed_image/2025-06-04/0050_18e6e21e-33d2-4927-98bf-eed4548f3393.jpg"
 Image_name="${ImageURL##*/}"
-path="/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/data/yewu0904/pigai/${Image_name}"
+path="/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/test_dir/${Image_name}"
 
 rag_dir=$path"/rag"
 if [ -d "$rag_dir" ]; then
@@ -20,13 +20,6 @@ else
 fi
 
 ### 9,10库
-rag_dir=$path"/rag"
-if [ -d "$rag_dir" ]; then
-    echo $rag_dir
-else
-    mkdir -p $rag_dir
-    echo "The directory '$rag_dir' has been created."
-fi
 RAG_INPUT_PATH="${path}/merge_vl_chaiti/${Image_name}.jsonl"
 BGE_OUTPUT_PATH=$rag_dir"/bge.jsonl"
 SEARCH_NAME="text_vl"
@@ -50,18 +43,17 @@ wait
 ### rerank
 RERANK_MODEL=/mnt/pfs_l2/jieti_team/APP/hegang/models/hegang/models/official/BAAI/bge-reranker-large
 RERANK_SAVE_PATH=$rag_dir"/rerank_9_10_tusou_indent4.csv"
-python pigai_pipeline/rag_pipeline/rerank.py \
+python /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/rag_pipeline/rerank.py \
     --rerank_model_path $RERANK_MODEL \
     --bge_path $BGE_OUTPUT_PATH \
     --tusou_path $TUSOU_OUTPUT_PATH \
     --top_k 3 \
     --save_path $RERANK_SAVE_PATH > $rag_dir"/rerank_9_10_tusou.log" 2>&1 &
 wait
-python pigai_pipeline/rag_pipeline/merge.py \
+python /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/rag_pipeline/merge.py \
     --rerank_path $RERANK_SAVE_PATH \
     --ocr_chai_path $RAG_INPUT_PATH \
     --save_path $rag_dir"/rag_output.csv"
-wait
 
 
 # nohup bash /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/search_online/rag.sh > /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_v1/data2025/0903bei/rag-bge/rerank_9_10_tusou_es.log 2>&1 &

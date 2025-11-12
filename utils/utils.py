@@ -2,6 +2,7 @@ import json
 import csv
 import difflib
 import re
+import pandas as pd
 
 def save_jsonL(save_path, data):
     """保存为jsonl"""
@@ -87,3 +88,7 @@ def flatten_nested_list(nested_list):
             # 非列表元素直接添加
             flattened.append(item)
     return flattened
+
+def csv2xlsx(csv_path, excel_path):
+    data = pd.read_csv(csv_path)
+    data.to_excel(excel_path)

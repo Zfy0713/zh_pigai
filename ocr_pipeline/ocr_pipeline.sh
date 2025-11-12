@@ -6,7 +6,7 @@ conda activate vllm065
 cd /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline
 
 # ImageURL="https://ss-prod-genie.oss-cn-beijing.aliyuncs.com/correct_pipeline/processed_image/2025-09-16/fa9c5ca7-573e-4946-993d-7b3cf94f1e28.jpg"
-ImageURL="https://ss-prod-genie.oss-cn-beijing.aliyuncs.com/correct_pipeline/processed_image/2025-09-16/a28fb325-488e-4af7-a071-dcb56274ba8c.jpg"
+ImageURL="https://ss-prod-genie.oss-cn-beijing.aliyuncs.com/correct_pipeline/processed_image/2025-09-16/02a24a73-c7bf-41e1-961b-9c1a9f7fd644.jpg"
 Image_name="${ImageURL##*/}"
 save_path="test_dir/"${Image_name}
 

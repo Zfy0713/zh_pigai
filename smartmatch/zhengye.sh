@@ -4,7 +4,7 @@ cd /mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeli
 
 
 # ImageURL="$1"
-ImageURL=https://ss-prod-genie.oss-cn-beijing.aliyuncs.com/correct_pipeline/processed_image/2025-09-16/a28fb325-488e-4af7-a071-dcb56274ba8c.jpg
+ImageURL="https://prod-genie.edstars.com.cn/correct_pipline/processed_image/2025-06-04/cf39_c9d9bad2-62fc-4a86-9200-2b2aff7cb1dd.jpg"
 Image_name="${ImageURL##*/}"
 path="/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_pipeline/test_dir/${Image_name}"
 

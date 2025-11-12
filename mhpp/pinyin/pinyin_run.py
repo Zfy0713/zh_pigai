@@ -106,6 +106,8 @@ def main(args):
     save_path = args.save_path
 
     data = load_jsonL(pinyin_input)
+    if not data:
+        return 
 
     ciku_path='/mnt/pfs_l2/jieti_team/APP/zhangfengyu/zhangfengyu/Correct_model/pigai_pipeline/pigai_v2/pinyin_large/pinyin_dict.json'
     draw_output = pigai_ciku(ciku_path=ciku_path, data=data, remove_tones=True)
