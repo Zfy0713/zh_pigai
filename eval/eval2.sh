@@ -39,7 +39,8 @@ else
     echo "The directory '$EVAL_DIR' has been created."
 fi
 
-gt=$PIGAI_DIR"/gt.Json"
+# gt=$PIGAI_DIR"/gt.Json"
+gt="$3"
 draw_path="${PIGAI_DIR}/merged_draw.csv"
 pic_path=$PIGAI_DIR"/" ### 批改效果集合
 pic_eval_path=$EVAL_DIR ### 评测效果集合

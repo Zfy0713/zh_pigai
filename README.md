@@ -28,3 +28,6 @@ smartmatch/zhengye.sh --> smart_match/draw.csv （整页比对批改结果）
 评测模块：
 eval/eval2.sh --> 评测图片 + 指标计算（final_result2.csv/per_pic.csv)
 
+
+线上结果评测：
+online_process/test-online.py
